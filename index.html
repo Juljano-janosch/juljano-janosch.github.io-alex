@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Öltank Füllstand Rechner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+        }
+        .info-box {
+            background: #e8f4f8;
+            padding: 10px;
+            border-left: 4px solid #0066cc;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #555;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #0066cc;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #0052a3;
+        }
+        .results {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 20px;
+            display: none;
+        }
+        .results.show {
+            display: block;
+        }
+        .result-item {
+            margin-bottom: 12px;
+            padding: 12px;
+            background: white;
+            border-left: 4px solid #0066cc;
+            border-radius: 4px;
+        }
+        .result-label {
+            color: #666;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        .result-value {
+            color: #0066cc;
+            font-size: 22px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .tank-info {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #555;
+        }
+        .tank-info strong {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Öltank Füllstand</h1>
+
+        <div class="info-box">
+            Rechteckiger Öltank: 350 × 195 × 150 cm
+        </div>
+
+        <div class="tank-info">
+            <strong>Tank Gesamtvolumen:</strong> 10.237.50 Liter
+        </div>
+
+        <div class="form-group">
+            <label>Füllhöhe (cm)</label>
+            <input type="number" id="fillHeight" placeholder="z.B. 75" step="0.1" min="0" max="150">
+        </div>
+
+        <button onclick="calculate()">Füllstand berechnen</button>
+
+        <div class="results" id="results">
+            <div class="result-item">
+                <div class="result-label">Öl Menge</div>
+                <div class="result-value" id="resultLiter">0 L</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Füllgrad</div>
+                <div class="result-value" id="resultPercentage">0 %</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Restvolumen</div>
+                <div class="result-value" id="resultRemaining">0 L</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Nachfüllen bis voll</div>
+                <div class="result-value" id="resultRefill">0 L</div>
+            </div>
+            <div class="result-item">
+                <div class="result-label">Volumen m³</div>
+                <div class="result-value" id="resultCubic">0 m³</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const LENGTH = 350;           // cm
+        const WIDTH = 195;            // cm
+        const HEIGHT = 150;           // cm
+        const TOTAL_VOLUME = 10237.5; // Liter (350*195*150/1000)
+
+        function calculate() {
+            const fillHeight = parseFloat(document.getElementById('fillHeight').value);
+
+            if (!fillHeight && fillHeight !== 0) {
+                alert('Bitte Füllhöhe eingeben!');
+                return;
+            }
+
+            if (fillHeight < 0 || fillHeight > HEIGHT) {
+                alert('Füllhöhe muss zwischen 0 und 150 cm liegen!');
+                return;
+            }
+
+            // Berechnung
+            const baseArea = LENGTH * WIDTH;                    // cm²
+            const currentVolume = (baseArea * fillHeight) / 1000; // Liter
+            const percentage = (fillHeight / HEIGHT) * 100;
+            const remaining = TOTAL_VOLUME - currentVolume;
+            const refill = remaining;
+            const cubic = currentVolume / 1000;                 // m³
+
+            // Ergebnisse anzeigen
+            document.getElementById('resultLiter').textContent = currentVolume.toFixed(1) + ' Liter';
+            document.getElementById('resultPercentage').textContent = percentage.toFixed(1) + ' %';
+            document.getElementById('resultRemaining').textContent = remaining.toFixed(1) + ' Liter';
+            document.getElementById('resultRefill').textContent = refill.toFixed(1) + ' Liter';
+            document.getElementById('resultCubic').textContent = cubic.toFixed(3) + ' m³';
+
+            document.getElementById('results').classList.add('show');
+        }
+
+        // Enter-Taste
+        document.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                calculate();
+            }
+        });
+    </script>
+</body>
+</html>
